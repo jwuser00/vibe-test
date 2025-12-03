@@ -38,72 +38,80 @@ export default function ActivityDetail() {
 
     return (
         <div className="container">
-            <Link to="/" className="btn" style={{ marginBottom: '1rem', paddingLeft: 0, color: 'var(--text-secondary)' }}>
-                <ArrowLeft size={20} style={{ marginRight: '0.5rem' }} /> Back to Dashboard
+            <Link to="/" className="btn back-link">
+                <ArrowLeft size={20} className="icon-inline" /> Back to Dashboard
             </Link>
 
-            <div className="card" style={{ marginBottom: '2rem' }}>
-                <h1 className="title" style={{ marginBottom: '1.5rem' }}>Activity Analysis</h1>
+            <div className="card card-spaced">
+                <h1 className="title section-title">Activity Analysis</h1>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5rem' }}>
+                <div className="stats-grid">
                     <div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <MapPin size={16} style={{ marginRight: '0.5rem' }} /> Total Distance
+                        <div className="stats-label">
+                            <MapPin size={16} className="icon-inline" /> Total Distance
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{(activity.total_distance / 1000).toFixed(2)} <span style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--text-secondary)' }}>km</span></div>
+                        <div className="stats-value">
+                            {(activity.total_distance / 1000).toFixed(2)} <span className="stats-subtext">km</span>
+                        </div>
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <Clock size={16} style={{ marginRight: '0.5rem' }} /> Total Time
+                        <div className="stats-label">
+                            <Clock size={16} className="icon-inline" /> Total Time
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{formatTime(activity.total_time)}</div>
+                        <div className="stats-value">{formatTime(activity.total_time)}</div>
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <Activity size={16} style={{ marginRight: '0.5rem' }} /> Avg Pace
+                        <div className="stats-label">
+                            <Activity size={16} className="icon-inline" /> Avg Pace
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{formatPace(activity.avg_pace)} <span style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--text-secondary)' }}>/km</span></div>
+                        <div className="stats-value">
+                            {formatPace(activity.avg_pace)} <span className="stats-subtext">/km</span>
+                        </div>
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <Heart size={16} style={{ marginRight: '0.5rem' }} /> Avg HR
+                        <div className="stats-label">
+                            <Heart size={16} className="icon-inline" /> Avg HR
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{activity.avg_hr ? Math.round(activity.avg_hr) : '-'} <span style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--text-secondary)' }}>bpm</span></div>
+                        <div className="stats-value">
+                            {activity.avg_hr ? Math.round(activity.avg_hr) : '-'} <span className="stats-subtext">bpm</span>
+                        </div>
                     </div>
                     <div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <Zap size={16} style={{ marginRight: '0.5rem' }} /> Avg Cadence
+                        <div className="stats-label">
+                            <Zap size={16} className="icon-inline" /> Avg Cadence
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{activity.avg_cadence ? Math.round(activity.avg_cadence) : '-'} <span style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--text-secondary)' }}>spm</span></div>
+                        <div className="stats-value">
+                            {activity.avg_cadence ? Math.round(activity.avg_cadence) : '-'} <span className="stats-subtext">spm</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="card" style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Lap Analysis</h2>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+            <div className="card card-spaced">
+                <h2 className="section-title">Lap Analysis</h2>
+                <div className="table-wrapper">
+                    <table className="data-table">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Lap</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Distance</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Time</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Pace</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Avg HR</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Max HR</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Cadence</th>
+                            <tr>
+                                <th>Lap</th>
+                                <th>Distance</th>
+                                <th>Time</th>
+                                <th>Pace</th>
+                                <th>Avg HR</th>
+                                <th>Max HR</th>
+                                <th>Cadence</th>
                             </tr>
                         </thead>
                         <tbody>
                             {activity.laps.map((lap) => (
-                                <tr key={lap.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '1rem' }}>{lap.lap_number}</td>
-                                    <td style={{ padding: '1rem' }}>{(lap.distance / 1000).toFixed(2)} km</td>
-                                    <td style={{ padding: '1rem' }}>{formatTime(lap.time)}</td>
-                                    <td style={{ padding: '1rem' }}>{formatPace(lap.pace)} /km</td>
-                                    <td style={{ padding: '1rem' }}>{lap.avg_hr ? Math.round(lap.avg_hr) : '-'}</td>
-                                    <td style={{ padding: '1rem' }}>{lap.max_hr ? Math.round(lap.max_hr) : '-'}</td>
-                                    <td style={{ padding: '1rem' }}>{lap.avg_cadence ? Math.round(lap.avg_cadence) : '-'}</td>
+                                <tr key={lap.id}>
+                                    <td>{lap.lap_number}</td>
+                                    <td>{(lap.distance / 1000).toFixed(2)} km</td>
+                                    <td>{formatTime(lap.time)}</td>
+                                    <td>{formatPace(lap.pace)} /km</td>
+                                    <td>{lap.avg_hr ? Math.round(lap.avg_hr) : '-'}</td>
+                                    <td>{lap.max_hr ? Math.round(lap.max_hr) : '-'}</td>
+                                    <td>{lap.avg_cadence ? Math.round(lap.avg_cadence) : '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -112,8 +120,8 @@ export default function ActivityDetail() {
             </div>
 
             <div className="card">
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Pace & Heart Rate</h2>
-                <div style={{ height: '400px' }}>
+                <h2 className="section-title">Pace & Heart Rate</h2>
+                <div className="chart-container">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={activity.laps}>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />

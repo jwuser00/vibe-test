@@ -101,3 +101,271 @@ button {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(99, 102, 241, 0.1);
+  border: 3px dashed var(--primary);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.drag-overlay__content {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+.pill--active {
+  border-color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.15);
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: var(--surface);
+  color: var(--text);
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  z-index: 1100;
+  min-width: 240px;
+}
+
+.toast--success {
+  border-color: var(--success);
+}
+
+.toast--warning {
+  border-color: #f59e0b;
+}
+
+.toast--error {
+  border-color: var(--error);
+}
+
+.toast__title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.toast__message {
+  color: var(--text-secondary);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.modal {
+  max-width: 400px;
+  width: 100%;
+  text-align: left;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.activity-card__link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.activity-card {
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.activity-card__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+}
+
+.activity-card__meta {
+  display: flex;
+  align-items: center;
+}
+
+.activity-card__icon {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  margin-right: 1rem;
+}
+
+.activity-card__date {
+  font-weight: 600;
+}
+
+.activity-card__time {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.btn-icon-danger {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.metric-value {
+  font-weight: 600;
+}
+
+.back-link {
+  margin-bottom: 1rem;
+  padding-left: 0;
+  color: var(--text-secondary);
+}
+
+.icon-inline {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.card-spaced {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.stats-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.stats-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stats-subtext {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 1rem;
+}
+
+.data-table th {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.data-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-container {
+  height: 400px;
+}

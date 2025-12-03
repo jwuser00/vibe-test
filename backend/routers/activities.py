@@ -15,9 +15,19 @@ async def upload_tcx(file: UploadFile = File(...), current_user: models.User = D
         parsed_activities = tcx_parser.parse_tcx(content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid TCX file: {str(e)}")
-    
+
     saved_activities = []
     for activity_data in parsed_activities:
+        duplicate = db.query(models.Activity).filter(
+            models.Activity.user_id == current_user.id,
+            models.Activity.start_time == activity_data['start_time']
+        ).first()
+        if duplicate:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Activity starting at {activity_data['start_time'].isoformat()} is already uploaded"
+            )
+
         db_activity = models.Activity(
             user_id=current_user.id,
             start_time=activity_data['start_time'],
