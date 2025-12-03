@@ -9,13 +9,17 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
-    activities = relationship("Activity", back_populates="owner")
+    activities = relationship(
+        "Activity",
+        back_populates="owner",
+        cascade="all, delete-orphan"
+    )
 
 class Activity(Base):
     __tablename__ = "activities"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     start_time = Column(DateTime)
     total_distance = Column(Float) # meters
     total_time = Column(Float) # seconds
@@ -24,13 +28,17 @@ class Activity(Base):
     avg_cadence = Column(Float)
 
     owner = relationship("User", back_populates="activities")
-    laps = relationship("Lap", back_populates="activity")
+    laps = relationship(
+        "Lap",
+        back_populates="activity",
+        cascade="all, delete-orphan"
+    )
 
 class Lap(Base):
     __tablename__ = "laps"
 
     id = Column(Integer, primary_key=True, index=True)
-    activity_id = Column(Integer, ForeignKey("activities.id"))
+    activity_id = Column(Integer, ForeignKey("activities.id", ondelete="CASCADE"))
     lap_number = Column(Integer)
     distance = Column(Float) # meters
     time = Column(Float) # seconds
