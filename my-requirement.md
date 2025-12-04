@@ -12,9 +12,15 @@
 - 프론트는 react, Backend는 fast api로 만들어줘.
 - Docker로 실행 시킬 수 있도록 해줘.
 - Docker가 아닌 로컬에서도 실행할 거야. 
-- node 버전은 24.11.1로 해주고, fnm으로 관리 되도록 해줘. fnm은 이미 깔려 있어.
-- node package 관리는 npm으로 해줘.
-- python version은 3.11.14로 해주고, pyenv로 관리 되도록 해줘. pyenv 및 3.11.14는 이미 깔려 있어.
-- python package 관리는 poetry로 해줘. poetry는 이미 깔려 있어.
+- node 관련
+    - 버전은 24.11.1로 해줘
+    - 로컬에서는 fnm으로 관리 되도록 해줘. fnm은 이미 깔려 있어.
+    - 실제 배포시에는 적당한 도커 이미지를 선택하고 굳이 fnm으로 node 버전을 관리할 필요가 없어.
+    - node package 관리는 npm으로 해줘.
+- python 관련
+    - python version은 3.11.14 해줘.
+    - 로컬에는 pyenv, poetry로 관리 되도록 해줘. pyenv 및 3.11.14는 이미 깔려 있어.
+    - 로컬에는 pyenv, poetry가 이미 설치 되어져 있어.
+    - 실제 배포시에는 적당한 도커 이미지를 선택하고, 기본 pip(requirements.txt)를 사용해줘.
 - 내가 Docker로 바로 실행 하는 방법을 알 수 있게 README를 작성해줘.
 - DB는 SQLite를 사용해줘.

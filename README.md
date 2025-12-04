@@ -11,6 +11,9 @@ This is a Running Management Application built with React, FastAPI, SQLite, and 
 
 ## Prerequisites
 - Docker and Docker Compose installed on your machine.
+- 로컬 실행 시:
+  - Node 24.11.1 (fnm으로 설치)
+  - Python 3.11.14 (pyenv로 지정), Poetry 설치
 
 ## How to Run
 
@@ -24,6 +27,11 @@ This is a Running Management Application built with React, FastAPI, SQLite, and 
 3. Once the containers are running, open your browser and go to:
    - **Frontend**: [http://localhost:3000](http://localhost:3000)
    - **Backend API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+## 로컬 개발
+1. `fnm use 24.11.1` (또는 `fnm install 24.11.1 && fnm use 24.11.1`)
+2. 프론트엔드: `cd frontend && npm install && npm run dev`
+3. 백엔드: `cd backend && poetry install && poetry run uvicorn main:app --reload`
 
 ## Usage
 1. Go to [http://localhost:3000](http://localhost:3000).

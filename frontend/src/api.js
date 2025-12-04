@@ -18,7 +18,12 @@ api.interceptors.request.use(
 );
 
 export const login = async (email, password) => {
-  const response = await api.post('/users/token', { email, password });
+  const form = new URLSearchParams();
+  form.append('username', email);
+  form.append('password', password);
+  const response = await api.post('/users/token', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
   return response.data;
 };
 

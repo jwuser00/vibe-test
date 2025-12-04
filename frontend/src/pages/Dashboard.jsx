@@ -100,11 +100,6 @@ export default function Dashboard() {
         if (file) await uploadFile(file);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-    };
-
     const handleDelete = async (e, activityId) => {
         e.preventDefault();
         e.stopPropagation();
@@ -164,9 +159,6 @@ export default function Dashboard() {
                         {uploading ? 'Uploading...' : <><Upload size={20} style={{ marginRight: '0.5rem' }} /> Upload TCX</>}
                         <input type="file" accept=".tcx" style={{ display: 'none' }} onChange={handleUpload} disabled={uploading} />
                     </label>
-                    <button className="btn" onClick={handleLogout} style={{ backgroundColor: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-                        Logout
-                    </button>
                 </div>
             </div>
 
@@ -226,11 +218,11 @@ export default function Dashboard() {
             </div>
 
             {toast && (
-                <div className={`toast toast--${toast.type}`}>
-                    <div className="toast__title">
+                <div className={`app-toast app-toast--${toast.type}`}>
+                    <div className="app-toast__title">
                         {toast.type === 'success' ? '성공' : toast.type === 'warning' ? '안내' : '알림'}
                     </div>
-                    <div className="toast__message">{toast.message}</div>
+                    <div className="app-toast__message">{toast.message}</div>
                 </div>
             )}
 

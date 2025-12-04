@@ -1,8 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ActivityDetail from './pages/ActivityDetail';
+import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -16,21 +17,17 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-          path="/"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <Layout>
+                <Outlet />
+              </Layout>
             </PrivateRoute>
           }
-        />
-        <Route
-          path="/activity/:id"
-          element={
-            <PrivateRoute>
-              <ActivityDetail />
-            </PrivateRoute>
-          }
-        />
+        >
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/activity/:id" element={<ActivityDetail />} />
+        </Route>
       </Routes>
     </Router>
   );
