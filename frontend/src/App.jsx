@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import AuthErrorModal from './components/AuthErrorModal';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -11,8 +13,28 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
+  const [showAuthError, setShowAuthError] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleAuthError = () => {
+      setShowAuthError(true);
+    };
+
+    window.addEventListener('auth-error', handleAuthError);
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
+  }, []);
+
+  const handleAuthErrorConfirm = () => {
+    setShowAuthError(false);
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -29,7 +51,8 @@ function App() {
           <Route path="/activity/:id" element={<ActivityDetail />} />
         </Route>
       </Routes>
-    </Router>
+      {showAuthError && <AuthErrorModal onConfirm={handleAuthErrorConfirm} />}
+    </>
   );
 }
 

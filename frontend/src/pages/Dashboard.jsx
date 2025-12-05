@@ -25,7 +25,7 @@ export default function Dashboard() {
             );
             setActivities(sorted);
         } catch (error) {
-            showToast('활동을 불러오지 못했습니다', 'error');
+            console.log('Dashboard loadActivities error:', error);
         }
     };
 
@@ -137,28 +137,34 @@ export default function Dashboard() {
 
 
     return (
-        <div
-            className="container"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            style={{ position: 'relative' }}
-        >
-            {isDragging && (
-                <div className="drag-overlay">
-                    <div className="drag-overlay__content">
-                        <Upload size={64} style={{ marginBottom: '1rem' }} />
-                        <div>TCX 파일을 여기에 드롭하세요</div>
+        <div className="container">
+            <div className="header" style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
+                <h1 className="title" style={{ margin: 0, whiteSpace: 'nowrap' }}>My Activities</h1>
+
+                <div
+                    className={`drop-zone ${isDragging ? 'drop-zone--active' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('file-upload').click()}
+                    style={{ margin: 0, flex: 1, padding: '1rem 2rem', flexDirection: 'row' }}
+                >
+                    <input
+                        type="file"
+                        id="file-upload"
+                        accept=".tcx"
+                        style={{ display: 'none' }}
+                        onChange={handleUpload}
+                        disabled={uploading}
+                    />
+                    <div className="drop-zone__content" style={{ flexDirection: 'row' }}>
+                        <Upload size={32} className="drop-zone__icon" />
+                        <div className="drop-zone__text" style={{ textAlign: 'left' }}>
+                            <span className="drop-zone__title" style={{ fontSize: '1.1rem', marginBottom: '0' }}>TCX 파일 업로드</span>
+                            <span className="drop-zone__subtitle" style={{ fontSize: '0.9rem' }}>여기를 클릭하거나 여기에 TCX 파일을 드래그앤 드롭 해 주세요.</span>
+                        </div>
                     </div>
-                </div>
-            )}
-            <div className="header">
-                <h1 className="title">My Activities</h1>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <label className="btn btn-primary">
-                        {uploading ? 'Uploading...' : <><Upload size={20} style={{ marginRight: '0.5rem' }} /> Upload TCX</>}
-                        <input type="file" accept=".tcx" style={{ display: 'none' }} onChange={handleUpload} disabled={uploading} />
-                    </label>
+                    {uploading && <div className="drop-zone__loading">Uploading...</div>}
                 </div>
             </div>
 

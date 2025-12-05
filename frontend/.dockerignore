@@ -1,0 +1,7 @@
+npm-debug.log
+.git
+.gitignore
+.DS_Store
+dist
+build
+*.log

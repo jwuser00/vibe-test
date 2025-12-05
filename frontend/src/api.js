@@ -17,6 +17,21 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.log('Interceptor caught error:', error);
+    if (error.response) {
+      console.log('Error status:', error.response.status);
+    }
+    if (error.response && error.response.status === 401) {
+      console.log('Interceptor 401 triggered');
+      window.dispatchEvent(new Event('auth-error'));
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const login = async (email, password) => {
   const form = new URLSearchParams();
   form.append('username', email);
