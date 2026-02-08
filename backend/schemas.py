@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum
+
 
 class LapBase(BaseModel):
     lap_number: int
@@ -56,3 +58,109 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+
+# --- Race schemas ---
+
+class DistanceType(str, Enum):
+    full = "full"
+    half = "half"
+    ten_km = "10km"
+    five_km = "5km"
+    custom = "custom"
+
+class RaceStatus(str, Enum):
+    upcoming = "예정"
+    finished = "완주"
+    dns = "DNS"
+    dnf = "DNF"
+
+class RaceImageOut(BaseModel):
+    id: int
+    race_id: int
+    filename: str
+    original_name: str
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class RaceBase(BaseModel):
+    race_name: str
+    race_date: datetime
+    location: Optional[str] = None
+    distance_type: DistanceType
+    distance_custom: Optional[float] = None
+    target_time: Optional[float] = None
+    actual_time: Optional[float] = None
+    status: RaceStatus = RaceStatus.upcoming
+    activity_id: Optional[int] = None
+    review: Optional[str] = None
+
+# Registration: only basic info
+class RaceCreate(BaseModel):
+    race_name: str
+    race_date: datetime
+    location: Optional[str] = None
+    distance_type: DistanceType
+    distance_custom: Optional[float] = None
+    target_time: Optional[float] = None
+
+# Edit basic info
+class RaceUpdate(BaseModel):
+    race_name: Optional[str] = None
+    race_date: Optional[datetime] = None
+    location: Optional[str] = None
+    distance_type: Optional[DistanceType] = None
+    distance_custom: Optional[float] = None
+    target_time: Optional[float] = None
+
+# Result update: status, actual_time, review, activity_id
+class RaceResultUpdate(BaseModel):
+    status: Optional[RaceStatus] = None
+    actual_time: Optional[float] = None
+    activity_id: Optional[int] = None
+    review: Optional[str] = None
+
+class ActivityBrief(BaseModel):
+    id: int
+    start_time: datetime
+    total_distance: float
+    total_time: float
+    avg_pace: float
+
+    class Config:
+        from_attributes = True
+
+class RaceOut(RaceBase):
+    id: int
+    user_id: int
+    images: List[RaceImageOut] = []
+    activity: Optional[ActivityBrief] = None
+
+    class Config:
+        from_attributes = True
+
+
+# --- Dashboard schemas ---
+
+class MonthlyRunningDay(BaseModel):
+    date: str  # YYYY-MM-DD
+    distance_km: float
+    avg_pace: Optional[float] = None  # seconds per km
+
+class RecentActivity(BaseModel):
+    id: int
+    start_time: datetime
+    total_distance: float
+    total_time: float
+    avg_pace: float
+    avg_hr: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+class DashboardData(BaseModel):
+    upcoming_races: List[RaceOut] = []
+    monthly_running: List[MonthlyRunningDay] = []
+    recent_activities: List[RecentActivity] = []

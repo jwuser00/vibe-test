@@ -1,158 +1,178 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import AppLayout from "@/components/layout/AppLayout";
-import ActivityCard from "@/components/activity/ActivityCard";
-import ActivityUpload from "@/components/activity/ActivityUpload";
-import ActivityFilters from "@/components/activity/ActivityFilters";
-import Toast from "@/components/common/Toast";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
-import { getActivities, uploadActivity, deleteActivity } from "@/lib/api/activities";
-import { validateTCXFile } from "@/lib/utils/format";
-import { useToast } from "@/lib/hooks/useToast";
-import { Activity } from "@/lib/types";
+import UpcomingRaceCard from "@/components/dashboard/UpcomingRaceCard";
+import MonthlyRunningChart from "@/components/dashboard/MonthlyRunningChart";
+import { getDashboardData } from "@/lib/api/dashboard";
+import { DashboardData } from "@/lib/types";
+import { toKST, formatPace, formatTimeFromSeconds } from "@/lib/utils/format";
 
 export default function DashboardPage() {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number | "all">("all");
-  const [selectedMonth, setSelectedMonth] = useState<number | "all">("all");
-  const { toast, showToast, closeToast } = useToast();
-
-  const loadActivities = useCallback(async () => {
-    try {
-      const data = await getActivities();
-      const sorted = [...data].sort(
-        (a, b) =>
-          new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
-      );
-      setActivities(sorted);
-    } catch {
-      // handled by auth interceptor
-    }
-  }, []);
+  const router = useRouter();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadActivities();
-  }, [loadActivities]);
-
-  const years = Array.from(
-    new Set(activities.map((a) => new Date(a.start_time).getFullYear()))
-  ).sort((a, b) => b - a);
-
-  const months = Array.from(
-    new Set(
-      activities
-        .filter(
-          (a) =>
-            selectedYear === "all" ||
-            new Date(a.start_time).getFullYear() === selectedYear
-        )
-        .map((a) => new Date(a.start_time).getMonth() + 1)
-    )
-  ).sort((a, b) => b - a);
-
-  const filteredActivities = activities.filter((activity) => {
-    const date = new Date(activity.start_time);
-    const yearMatch =
-      selectedYear === "all" || date.getFullYear() === selectedYear;
-    const monthMatch =
-      selectedMonth === "all" || date.getMonth() + 1 === selectedMonth;
-    return yearMatch && monthMatch;
-  });
-
-  const handleUpload = async (file: File) => {
-    if (!validateTCXFile(file)) {
-      showToast("TCX 파일만 업로드 가능합니다", "error");
-      return;
-    }
-
-    setUploading(true);
-    try {
-      await uploadActivity(file);
-      showToast("업로드가 완료되었습니다", "success");
-      await loadActivities();
-    } catch (error: unknown) {
-      const err = error as { response?: { status?: number; data?: { detail?: string } } };
-      if (err?.response?.status === 409 && err?.response?.data?.detail) {
-        showToast(err.response.data.detail, "warning");
-      } else {
-        showToast("업로드에 실패했습니다", "error");
+    const load = async () => {
+      try {
+        const result = await getDashboardData();
+        setData(result);
+      } catch {
+        // handled by auth interceptor
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setUploading(false);
-    }
-  };
+    };
+    load();
+  }, []);
 
-  const handleDelete = (e: React.MouseEvent, activityId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setConfirmDeleteId(activityId);
-  };
-
-  const confirmDelete = async () => {
-    if (!confirmDeleteId) return;
-    try {
-      await deleteActivity(confirmDeleteId);
-      showToast("활동이 삭제되었습니다", "success");
-      await loadActivities();
-    } catch {
-      showToast("삭제에 실패했습니다", "error");
-    }
-    setConfirmDeleteId(null);
-  };
-
-  const handleYearChange = (year: number | "all") => {
-    setSelectedYear(year);
-    setSelectedMonth("all");
-  };
+  if (loading) {
+    return (
+      <AppLayout>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 300 }}>
+          <CircularProgress />
+        </Box>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 3,
-          mb: 3,
-        }}
-      >
-        <Typography variant="h4" sx={{ whiteSpace: "nowrap" }}>
-          My Activities
-        </Typography>
-        <ActivityUpload uploading={uploading} onUpload={handleUpload} />
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        대시보드
+      </Typography>
+
+      {/* Upcoming Races Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h6" fontWeight={700}>
+            다가오는 대회
+          </Typography>
+          <Button
+            size="small"
+            onClick={() => router.push("/races")}
+            sx={{ textTransform: "none" }}
+          >
+            전체 보기
+          </Button>
+        </Box>
+
+        {data && data.upcoming_races.length > 0 ? (
+          <Grid container spacing={2}>
+            {data.upcoming_races.map((race) => (
+              <Grid key={race.id} size={{ xs: 12, sm: 6 }}>
+                <UpcomingRaceCard race={race} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Card>
+            <CardContent sx={{ textAlign: "center", py: 4 }}>
+              <EmojiEventsIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+              <Typography color="text.secondary">
+                예정된 대회가 없습니다
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ mt: 1.5, textTransform: "none" }}
+                onClick={() => router.push("/races/new")}
+              >
+                대회 등록하기
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </Box>
 
-      <ActivityFilters
-        years={years}
-        months={months}
-        selectedYear={selectedYear}
-        selectedMonth={selectedMonth}
-        onYearChange={handleYearChange}
-        onMonthChange={setSelectedMonth}
-      />
+      {/* Monthly Running Chart Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h6" fontWeight={700}>
+            이번 달 러닝
+          </Typography>
+          <Button
+            size="small"
+            onClick={() => router.push("/activities")}
+            sx={{ textTransform: "none" }}
+          >
+            내 활동 보기
+          </Button>
+        </Box>
 
-      <Grid container spacing={2}>
-        {filteredActivities.map((activity) => (
-          <Grid key={activity.id} size={{ xs: 12, sm: 6, md: 4 }}>
-            <ActivityCard activity={activity} onDelete={handleDelete} />
-          </Grid>
-        ))}
-      </Grid>
+        <Card>
+          <CardContent>
+            <MonthlyRunningChart data={data?.monthly_running ?? []} />
+          </CardContent>
+        </Card>
+      </Box>
 
-      <Toast toast={toast} onClose={closeToast} />
+      {/* Recent Activities Section */}
+      <Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h6" fontWeight={700}>
+            최근 활동
+          </Typography>
+          <Button
+            size="small"
+            onClick={() => router.push("/activities")}
+            sx={{ textTransform: "none" }}
+          >
+            전체 보기
+          </Button>
+        </Box>
 
-      <ConfirmDialog
-        open={confirmDeleteId !== null}
-        title="활동을 삭제할까요?"
-        message="삭제하면 되돌릴 수 없습니다."
-        onConfirm={confirmDelete}
-        onCancel={() => setConfirmDeleteId(null)}
-      />
+        <Card>
+          {data && data.recent_activities.length > 0 ? (
+            <List disablePadding>
+              {data.recent_activities.map((activity, idx) => {
+                const kst = toKST(activity.start_time);
+                return (
+                  <ListItemButton
+                    key={activity.id}
+                    onClick={() => router.push(`/activity/${activity.id}`)}
+                    divider={idx < data.recent_activities.length - 1}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      <DirectionsRunIcon color="primary" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={kst.toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" })}
+                      secondary={`${(activity.total_distance / 1000).toFixed(2)}km · ${formatTimeFromSeconds(activity.total_time)} · ${formatPace(activity.avg_pace)} /km`}
+                    />
+                    {activity.avg_hr && (
+                      <Typography variant="body2" color="text.secondary">
+                        {Math.round(activity.avg_hr)} bpm
+                      </Typography>
+                    )}
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          ) : (
+            <CardContent sx={{ textAlign: "center", py: 4 }}>
+              <Typography color="text.secondary">
+                아직 활동 기록이 없습니다
+              </Typography>
+            </CardContent>
+          )}
+        </Card>
+      </Box>
     </AppLayout>
   );
 }

@@ -7,3 +7,4 @@ python-jose[cryptography]
 python-multipart
 lxml
 python-dateutil
+aiofiles
