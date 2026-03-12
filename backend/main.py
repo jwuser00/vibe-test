@@ -1,4 +1,12 @@
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# 환경변수 로드: 프로젝트 루트의 .env.local (로컬 개발용)
+# Docker에서는 이 파일이 없으므로 docker-compose의 environment가 사용됨
+_env_local = Path(__file__).resolve().parent.parent / ".env.local"
+load_dotenv(_env_local, override=False)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

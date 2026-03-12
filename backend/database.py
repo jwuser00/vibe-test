@@ -1,13 +1,7 @@
 import os
-from pathlib import Path
 from urllib.parse import quote_plus
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
-
-# .env.local 자동 로드 (프로젝트 루트 기준)
-_env_local = Path(__file__).resolve().parent.parent / ".env.local"
-load_dotenv(_env_local, override=False)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 

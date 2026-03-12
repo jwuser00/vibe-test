@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import Boolean, Column, Integer, String, Float, DateTime, ForeignKey, Text, Enum, Index
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -24,7 +24,9 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True)
-    hashed_password = Column(String(255))
+    hashed_password = Column(String(255), nullable=True)
+    nickname = Column(String(50), nullable=False, default="")
+    google_id = Column(String(100), nullable=True, unique=True)
 
     activities = relationship(
         "Activity",
@@ -36,6 +38,27 @@ class User(Base):
         back_populates="owner",
         cascade="all, delete-orphan"
     )
+    password_reset_tokens = relationship(
+        "PasswordResetToken",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token = Column(String(100), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False, nullable=False)
+
+    __table_args__ = (
+        Index("ix_password_reset_tokens_token", "token", unique=True),
+    )
+
+    user = relationship("User", back_populates="password_reset_tokens")
 
 class Activity(Base):
     __tablename__ = "activities"

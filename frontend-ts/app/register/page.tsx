@@ -1,90 +1,216 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Alert from "@mui/material/Alert";
-import { register } from "@/lib/api/auth";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
+import { register, login } from '@/lib/api/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
+import {
+  validateEmail,
+  validateNickname,
+  validatePassword,
+  validatePasswordConfirm,
+} from '@/lib/validation';
+import PasswordStrengthBar from '@/components/auth/PasswordStrengthBar';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+
+  const [touched, setTouched] = useState({
+    email: false,
+    nickname: false,
+    password: false,
+    passwordConfirm: false,
+  });
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
+  const { setToken } = useAuth();
+
+  const emailError = validateEmail(email);
+  const nicknameError = validateNickname(nickname);
+  const passwordError = validatePassword(password);
+  const passwordConfirmError = validatePasswordConfirm(password, passwordConfirm);
+
+  const isFormValid =
+    !emailError && !nicknameError && !passwordError && !passwordConfirmError;
+
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setTouched({ email: true, nickname: true, password: true, passwordConfirm: true });
+    if (!isFormValid) return;
+
+    setError('');
+    setLoading(true);
     try {
-      await register(email, password);
-      router.push("/login");
+      await register(email, nickname, password);
+      try {
+        const data = await login(email, password);
+        setToken(data.access_token);
+        router.push('/dashboard');
+      } catch {
+        router.push('/login?registered=1');
+      }
     } catch {
-      setError("회원가입에 실패했습니다.");
+      setError('회원가입에 실패했습니다. 이미 사용 중인 이메일일 수 있습니다.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleGoogleSignUp = () => {
+    window.location.href = `${API_URL}/users/auth/google`;
   };
 
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        bgcolor: "background.default",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
       }}
     >
-      <Card sx={{ width: "100%", maxWidth: 400 }}>
+      <Card sx={{ width: '100%', maxWidth: 440 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h5" align="center" sx={{ mb: 3 }}>
-            Register
+            회원가입
           </Typography>
-          <Box component="form" onSubmit={handleSubmit}>
+
+          <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
               fullWidth
               type="email"
-              label="Email"
+              label="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => handleBlur('email')}
               margin="normal"
               required
+              error={touched.email && !!emailError}
+              helperText={touched.email && emailError ? emailError : ' '}
+            />
+            <TextField
+              fullWidth
+              label="닉네임"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              onBlur={() => handleBlur('nickname')}
+              margin="normal"
+              required
+              error={touched.nickname && !!nicknameError}
+              helperText={touched.nickname && nicknameError ? nicknameError : ' '}
             />
             <TextField
               fullWidth
               type="password"
-              label="Password"
+              label="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => handleBlur('password')}
               margin="normal"
               required
+              error={touched.password && !!passwordError}
+              helperText={touched.password && passwordError ? passwordError : ' '}
             />
+            {password && <PasswordStrengthBar password={password} />}
+            <TextField
+              fullWidth
+              type="password"
+              label="비밀번호 확인"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              onBlur={() => handleBlur('passwordConfirm')}
+              margin="normal"
+              required
+              error={touched.passwordConfirm && !!passwordConfirmError}
+              helperText={
+                touched.passwordConfirm && passwordConfirmError
+                  ? passwordConfirmError
+                  : ' '
+              }
+            />
+
             {error && (
-              <Alert severity="error" sx={{ mt: 1 }}>
+              <Alert severity="error" sx={{ mt: 1, mb: 1 }}>
                 {error}
               </Alert>
             )}
+
             <Button
               fullWidth
               type="submit"
               variant="contained"
+              disabled={!isFormValid || loading}
               sx={{ mt: 2, py: 1.2 }}
             >
-              Sign Up
+              {loading ? '가입 중...' : '회원가입'}
             </Button>
           </Box>
+
+          <Divider sx={{ my: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              또는
+            </Typography>
+          </Divider>
+
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleGoogleSignUp}
+            sx={{ py: 1.2, borderColor: 'divider', color: 'text.primary' }}
+            startIcon={
+              <svg width="18" height="18" viewBox="0 0 18 18">
+                <path
+                  fill="#4285F4"
+                  d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"
+                />
+              </svg>
+            }
+          >
+            Google로 가입
+          </Button>
+
           <Typography
             align="center"
             variant="body2"
-            sx={{ mt: 2, color: "text.secondary" }}
+            sx={{ mt: 2, color: 'text.secondary' }}
           >
-            Already have an account?{" "}
-            <Link href="/login" style={{ color: "#4e73df" }}>
-              Login
+            이미 계정이 있으신가요?{' '}
+            <Link href="/login" style={{ color: '#4e73df' }}>
+              로그인
             </Link>
           </Typography>
         </CardContent>

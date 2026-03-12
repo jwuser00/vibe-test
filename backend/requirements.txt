@@ -22,6 +22,7 @@ fastapi==0.134.0
     # via running-manager-backend (pyproject.toml)
 h11==0.16.0
     # via uvicorn
+httpx>=0.27.0
 idna==3.11
     # via anyio
 lxml==6.0.2

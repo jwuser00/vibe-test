@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -44,13 +44,27 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    nickname: str
 
 class User(UserBase):
     id: int
+    nickname: str
     activities: List[Activity] = []
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class MessageResponse(BaseModel):
+    message: str
 
 class Token(BaseModel):
     access_token: str

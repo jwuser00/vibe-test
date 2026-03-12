@@ -20,8 +20,10 @@ GPS 워치에서 추출한 TCX 파일을 업로드하여 러닝 활동을 기록
 │  Running Manager                                │
 ├─────────────────────────────────────────────────┤
 │  [Public Pages - No Auth]                       │
-│  ├─ /login          로그인                       │
-│  └─ /register       회원가입                     │
+│  ├─ /login              로그인                   │
+│  ├─ /register           회원가입                 │
+│  ├─ /forgot-password    비밀번호 찾기            │
+│  └─ /reset-password     비밀번호 재설정          │
 │                                                 │
 │  [Protected Pages - Auth Required]              │
 │  ├─ /dashboard      대시보드        (sidebar)    │
@@ -39,7 +41,15 @@ GPS 워치에서 추출한 TCX 파일을 업로드하여 러닝 활동을 기록
 | Menu | Feature | Status |
 |------|---------|--------|
 | **Auth** | Email/Password 로그인 | Implemented |
-| **Auth** | 회원가입 | Implemented |
+| **Auth** | 회원가입 (기본) | Implemented |
+| **Auth** | 회원가입 - 닉네임 필드 | Not Implemented |
+| **Auth** | 회원가입 - 비밀번호 확인 입력 | Not Implemented |
+| **Auth** | 회원가입 - 비밀번호 강도 검증 | Not Implemented |
+| **Auth** | 회원가입 - 이메일 형식 검증 | Not Implemented |
+| **Auth** | 회원가입 - 가입 후 자동 로그인 | Not Implemented |
+| **Auth** | Google SSO 로그인/가입 | Not Implemented |
+| **Auth** | 비밀번호 찾기 (이메일 링크) | Not Implemented |
+| **Auth** | 비밀번호 재설정 | Not Implemented |
 | **Auth** | JWT 토큰 인증 (30분 만료) | Implemented |
 | **Auth** | 세션 만료 모달 + 자동 로그아웃 | Implemented |
 | **Dashboard** | 다가오는 대회 (D-Day 카운트다운) | Implemented |
