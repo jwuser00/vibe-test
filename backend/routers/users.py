@@ -4,9 +4,11 @@ import logging
 import os
 import uuid
 from datetime import datetime, timedelta
+from typing import Optional
+from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -103,14 +105,19 @@ def google_login():
             detail="Google 로그인이 설정되지 않았습니다.",
         )
     redirect_uri = f"{BACKEND_URL}/users/auth/google/callback"
-    params = (
-        f"client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_type=code"
-        f"&scope=openid%20email%20profile"
-        f"&access_type=offline"
-    )
-    return RedirectResponse(url=f"{GOOGLE_AUTH_URL}?{params}")
+    logger.info(f"Google login: BACKEND_URL={BACKEND_URL}, redirect_uri={redirect_uri}")
+
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+    }
+    query_string = urlencode(params)
+    google_auth_url = f"{GOOGLE_AUTH_URL}?{query_string}"
+    logger.info(f"Redirecting to Google: {google_auth_url[:100]}...")
+    return RedirectResponse(url=google_auth_url)
 
 
 @router.get(
@@ -118,8 +125,18 @@ def google_login():
     summary="Google OAuth 콜백 처리",
     description="Google에서 전달된 인증 코드를 처리하고 JWT를 발급합니다.",
 )
-async def google_callback(code: str, db: Session = Depends(database.get_db)):
+async def google_callback(
+    request: Request,
+    db: Session = Depends(database.get_db),
+):
     """Google OAuth 콜백을 처리하고 프론트엔드로 JWT와 함께 리다이렉트합니다."""
+    print("=" * 50)
+    print(f"GOOGLE CALLBACK CALLED!")
+    print(f"query_params: {dict(request.query_params)}")
+    print("=" * 50)
+    code = request.query_params.get("code")
+    logger.info(f"Google callback received: query_params={dict(request.query_params)}")
+    logger.info(f"Code={code}")
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -127,18 +144,21 @@ async def google_callback(code: str, db: Session = Depends(database.get_db)):
         )
 
     redirect_uri = f"{BACKEND_URL}/users/auth/google/callback"
+    logger.info(f"Google callback: BACKEND_URL={BACKEND_URL}, redirect_uri={redirect_uri}, code={code}")
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
+            token_data = {
+                "code": code,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+            }
+            logger.info(f"Sending to Google token endpoint: {token_data}")
             token_response = await client.post(
                 GOOGLE_TOKEN_URL,
-                data={
-                    "code": code,
-                    "client_id": GOOGLE_CLIENT_ID,
-                    "client_secret": GOOGLE_CLIENT_SECRET,
-                    "redirect_uri": redirect_uri,
-                    "grant_type": "authorization_code",
-                },
+                data=token_data,
             )
             token_response.raise_for_status()
             token_data = token_response.json()
